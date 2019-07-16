@@ -572,3 +572,41 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         destination_path = os.path.join(self.repo_base, 'test4')
         self.assertTrue(os.path.exists(destination_path))
         self.assertTrue(os.path.exists(os.path.join(destination_path, 'pack.yaml')))
+
+    def test_run_pack_download_with_latest_tag(self):
+        def side_effect(ref):
+            if ref[0] != 'v':
+                raise BadName()
+            return mock.MagicMock(hexsha='abcdeD')
+
+        self.repo_instance.commit.side_effect = side_effect
+
+        self.repo_instance.git = mock.MagicMock(branch=(lambda *args: 'master'),
+                                                checkout=(lambda *args: True))
+
+        # Set default branch
+        self.repo_instance.active_branch.name = 'master'
+        self.repo_instance.active_branch.object = 'aBcdef'
+        self.repo_instance.head.commit = 'aBcdef'
+
+        # Fake gitref object
+        gitref = mock.MagicMock(hexsha='abcDef')
+
+        # Fool _get_gitref into working when its ref == our ref
+        def fake_commit(arg_ref):
+            if arg_ref is None:
+                return gitref
+            else:
+                raise BadName()
+
+        self.repo_instance.commit = fake_commit
+        self.repo_instance.active_branch.object = gitref
+
+        action = self.get_action_instance()
+        result = action.run(packs=['test'], abs_repo_base=self.repo_base)
+        self.assertEqual(result, {'test': 'Success.'})
+
+        temp_dir = hashlib.md5(PACK_INDEX['test']['repo_url'].encode()).hexdigest()
+        self.clone_from.assert_called_once_with(PACK_INDEX['test']['repo_url'],
+                                                os.path.join(os.path.expanduser('~'), temp_dir))
+        self.assertTrue(os.path.isfile(os.path.join(self.repo_base, 'test/pack.yaml')))

@@ -7,6 +7,9 @@ in development
 Fixed
 ~~~~~
 
+* Install pack with the latest tag version if it exists when branch is not specialied.
+  (new feature) #354
+
 * Fixed logging middleware to output a ``content_length`` of ``0`` instead of ``Infinity``
   when the type of data being returned is not supported. Previously, when the value was
   set to ``Infinity`` this would result in invalid JSON being output into structured

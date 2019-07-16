@@ -249,6 +249,12 @@ def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master'):
         repo.git.checkout('-b', short_branch, branch)
         branch = repo.head.reference
     else:
+        # Checkout out the latest tag if tag exists when branch or version is not specified.
+        if not ref and repo.tags:
+            branch = repo.git.describe('--abbrev=0', '--tags')
+            repo.git.checkout(branch)
+            return temp_dir
+
         branch = repo.active_branch.name
 
     repo.git.checkout(gitref.hexsha)  # pylint: disable=no-member
