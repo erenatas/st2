@@ -7,7 +7,7 @@ in development
 Added
 ~~~~~
 
-* Install pack with the latest tag version if it exists when branch is not specialied.
+* Install pack with the latest tag version if it exists when branch is not specialized.
   (new feature) #354
 
 Fixed
