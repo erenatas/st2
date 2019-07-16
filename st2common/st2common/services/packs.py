@@ -29,7 +29,8 @@ __all__ = [
     'get_pack_by_ref',
     'fetch_pack_index',
     'get_pack_from_index',
-    'search_pack_index'
+    'search_pack_index',
+    'get_pack_version_from_url'
 ]
 
 EXCLUDE_FIELDS = [
@@ -174,6 +175,25 @@ def get_pack_from_index(pack, proxy_config=None):
     index, _ = fetch_pack_index(proxy_config=proxy_config)
 
     return index.get(pack)
+
+
+def get_pack_version_from_url(pack_repo_url, proxy_config=None):
+
+    """
+    Search pack version by pack repo url.
+    Returns a pack.
+    """
+    if not pack_repo_url:
+        raise ValueError("Pack repo URL must be specified.")
+
+    index, _ = fetch_pack_index(proxy_config=proxy_config)
+
+    for pack in six.itervalues(index):
+        for key, value in six.iteritems(pack):
+            if value == pack_repo_url and key == "repo_url":
+                return "v" + pack['version']
+
+    return None
 
 
 def search_pack_index(query, exclude=None, priority=None, case_sensitive=True, proxy_config=None):

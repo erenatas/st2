@@ -39,6 +39,7 @@ from st2common.constants.pack import PACK_RESERVED_CHARACTERS
 from st2common.constants.pack import PACK_VERSION_SEPARATOR
 from st2common.constants.pack import PACK_VERSION_REGEX
 from st2common.services.packs import get_pack_from_index
+from st2common.services.packs import get_pack_version_from_url
 from st2common.util.pack import get_pack_metadata
 from st2common.util.pack import get_pack_ref_from_metadata
 from st2common.util.green import shell
@@ -249,11 +250,12 @@ def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master'):
         repo.git.checkout('-b', short_branch, branch)
         branch = repo.head.reference
     else:
-        # Checkout out the latest tag if tag exists when branch or version is not specified.
-        if not ref and repo.tags:
-            branch = repo.git.describe('--abbrev=0', '--tags')
-            repo.git.checkout(branch)
-            return temp_dir
+        # Checkout out the latest tag when branch or version is not specified.
+        if not ref:
+            branch = get_pack_version_from_url(repo_url)
+            if branch:
+                repo.git.checkout(branch)
+                return temp_dir
 
         branch = repo.active_branch.name
 
