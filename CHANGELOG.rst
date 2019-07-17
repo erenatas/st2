@@ -8,7 +8,7 @@ Changed
 ~~~~~~~
 
 * Install pack with the latest tag version if it exists when branch is not specialized.
-  (improvement) StackStorm/discussions#354
+  (improvement) #4743
 
 Fixed
 ~~~~~
