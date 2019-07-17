@@ -106,7 +106,7 @@ def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, 
         raise ValueError(msg)
 
     try:
-        pack_url, pack_version = get_repo_url(pack, proxy_config=proxy_config)
+        pack_url, version, latest_pack_version = get_repo_url(pack, proxy_config=proxy_config)
     except Exception as e:
         # Pack not found or similar
         result = [None, pack, (False, six.text_type(e))]
@@ -153,7 +153,7 @@ def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, 
             else:
                 # 1. Clone / download the repo
                 clone_repo(temp_dir=abs_local_path, repo_url=pack_url, verify_ssl=verify_ssl,
-                           ref=pack_version)
+                           ref=version, latest_pack_version=latest_pack_version)
 
             pack_ref = get_pack_ref(pack_dir=abs_local_path)
             result[1] = pack_ref
@@ -175,7 +175,7 @@ def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, 
     return tuple(result)
 
 
-def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master'):
+def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master', latest_pack_version=None):
     # Switch to non-interactive mode
     os.environ['GIT_TERMINAL_PROMPT'] = '0'
     os.environ['GIT_ASKPASS'] = '/bin/echo'
@@ -251,11 +251,9 @@ def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master'):
         branch = repo.head.reference
     else:
         # Checkout out the latest tag when branch or version is not specified.
-        if not ref:
-            branch = get_pack_version_from_url(repo_url)
-            if branch:
-                repo.git.checkout(branch)
-                return temp_dir
+        if not ref and latest_pack_version:
+            repo.git.checkout(latest_pack_version)
+            return temp_dir
 
         branch = repo.active_branch.name
 
@@ -378,9 +376,11 @@ def get_repo_url(pack, proxy_config=None):
         if not pack:
             raise Exception('No record of the "%s" pack in the index.' % (name_or_url))
 
-        return (pack['repo_url'], version)
+        latest_pack_version = None if version else 'v' + pack['version']
+        return (pack['repo_url'], version , latest_pack_version)
     else:
-        return (eval_repo_url(name_or_url), version)
+        latest_pack_version = None if version else get_pack_version_from_url(name_or_url)
+        return (eval_repo_url(name_or_url), version, latest_pack_version)
 
 
 def eval_repo_url(repo_url):

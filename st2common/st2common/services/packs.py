@@ -189,9 +189,8 @@ def get_pack_version_from_url(pack_repo_url, proxy_config=None):
     index, _ = fetch_pack_index(proxy_config=proxy_config)
 
     for pack in six.itervalues(index):
-        for key, value in six.iteritems(pack):
-            if value == pack_repo_url and key == "repo_url":
-                return "v" + pack['version']
+        if pack["repo_url"] == pack_repo_url:
+            return "v" + pack['version']
 
     return None
 
