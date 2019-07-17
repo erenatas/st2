@@ -377,7 +377,7 @@ def get_repo_url(pack, proxy_config=None):
             raise Exception('No record of the "%s" pack in the index.' % (name_or_url))
 
         latest_pack_version = None if version else 'v' + pack['version']
-        return (pack['repo_url'], version , latest_pack_version)
+        return (pack['repo_url'], version, latest_pack_version)
     else:
         latest_pack_version = None if version else get_pack_version_from_url(name_or_url)
         return (eval_repo_url(name_or_url), version, latest_pack_version)
