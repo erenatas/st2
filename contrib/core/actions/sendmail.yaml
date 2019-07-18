@@ -23,19 +23,14 @@ parameters:
     position: 2
     required: true
     type: string
-  cc:
-    description: Carbon copy recipient email address.
-    position: 3
-    required: false
-    type: string
   subject:
     description: Subject of the email.
-    position: 4
+    position: 3
     required: true
     type: string
   send_empty_body:
     description: Send a message even if the body is empty.
-    position: 5
+    position: 4
     required: false
     type: boolean
     default: True
@@ -43,16 +38,16 @@ parameters:
     type: string
     description: Content type of message to be sent without the charset (charset is set to UTF-8 inside the script).
     default: "text/html"
-    position: 6
+    position: 5
   body:
     description: Body of the email.
-    position: 7
+    position: 6
     required: true
     type: string
   sudo:
     immutable: true
   attachments:
     description: Array of attachment file paths, comma-delimited.
-    position: 8
+    position: 7
     required: false
     type: "string"
